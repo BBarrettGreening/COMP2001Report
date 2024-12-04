@@ -1,0 +1,210 @@
+openapi: 3.0.0
+info:
+  title: "Flask REST API"
+  description: "API for managing people and their notes"
+  version: "1.0.0"
+servers:
+  - url: "/api"
+paths:
+  /people:
+    get:
+      operationId: "people.read_all"
+      tags:
+        - People
+      summary: "Retrieve all people"
+      responses:
+        "200":
+          description: "List of people"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Person"
+    post:
+      operationId: "people.create"
+      tags:
+        - People
+      summary: "Create a person"
+      requestBody:
+        description: "Person to create"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Person"
+      responses:
+        "201":
+          description: "Person created"
+  /people/{lname}:
+    get:
+      operationId: "people.read_one"
+      tags:
+        - People
+      summary: "Retrieve one person"
+      parameters:
+        - $ref: "#/components/parameters/lname"
+      responses:
+        "200":
+          description: "Person found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+    put:
+      operationId: "people.update"
+      tags:
+        - People
+      summary: "Update a person"
+      parameters:
+        - $ref: "#/components/parameters/lname"
+      requestBody:
+        description: "Person data to update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Person"
+      responses:
+        "200":
+          description: "Person updated"
+    delete:
+      operationId: "people.delete"
+      tags:
+        - People
+      summary: "Delete a person"
+      parameters:
+        - $ref: "#/components/parameters/lname"
+      responses:
+        "204":
+          description: "Person deleted"
+  /notes:
+    post:
+      operationId: "notes.create"
+      tags:
+        - Notes
+      summary: "Create a note associated with a person"
+      requestBody:
+        description: "Note to create"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                person_id:
+                  type: integer
+                  description: "ID of the person associated with the note"
+                content:
+                  type: string
+                  description: "Content of the note"
+      responses:
+        "201":
+          description: "Successfully created a note"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+  /notes/{note_id}:
+    get:
+      operationId: "notes.read_one"
+      tags:
+        - Notes
+      summary: "Retrieve one note"
+      parameters:
+        - $ref: "#/components/parameters/note_id"
+      responses:
+        "200":
+          description: "Note found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+    put:
+      tags:
+        - Notes
+      operationId: "notes.update"
+      summary: "Update a note"
+      parameters:
+        - $ref: "#/components/parameters/note_id"
+      requestBody:
+        description: "Updated content for the note"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: "Updated content of the note"
+      responses:
+        "200":
+          description: "Successfully updated note"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+    delete:
+      tags:
+        - Notes
+      operationId: "notes.delete"
+      summary: "Delete a note"
+      parameters:
+        - $ref: "#/components/parameters/note_id"
+      responses:
+        "204":
+          description: "Successfully deleted note"
+components:
+  schemas:
+    Person:
+      type: object
+      required:
+        - lname
+        - fname
+      properties:
+        fname:
+          type: string
+          description: "First name of the person"
+        lname:
+          type: string
+          description: "Last name of the person"
+        notes:
+          type: array
+          description: "List of notes associated with the person"
+          items:
+            $ref: "#/components/schemas/Note"
+    Note:
+      type: object
+      required:
+        - content
+        - timestamp
+      properties:
+        id:
+          type: integer
+          description: "ID of the note"
+        person_id:
+          type: integer
+          description: "ID of the person who created the note"
+        content:
+          type: string
+          description: "Content of the note"
+        timestamp:
+          type: string
+          format: date-time
+          description: "Timestamp of when the note was created"
+  parameters:
+    lname:
+      name: "lname"
+      in: path
+      description: "Last name of the person"
+      required: true
+      schema:
+        type: string
+    note_id:
+      name: "note_id"
+      in: path
+      description: "ID of the note"
+      required: true
+      schema:
+        type: integer
