@@ -33,5 +33,5 @@ This repository contains the micro-service implementation for managing trail-rel
 ### Steps to Deploy Locally
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/TrailMicroService.git
+   git clone https://github.com/BBarrettGreening/TrailMicroService.git
    cd TrailMicroService
