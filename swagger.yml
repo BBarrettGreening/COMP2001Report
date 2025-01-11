@@ -1,15 +1,15 @@
 openapi: 3.0.0
 info:
   title: "Trails Management API"
-  description: "API for managing trails, features, location points, and user authentication."
+  description: "API for managing trails, features, location points, and user authentication. This API allows users to log in, manage trails, add features, update location points, and more. Administrators and standard users have different access levels."
   version: "1.1.2"
 servers:
   - url: "http://127.0.0.1:8000/api"
-
 paths:
   /login:
     post:
       summary: "Authenticate user and generate JWT token"
+      description: "This endpoint allows users to log in by providing a username (email) and password. Upon successful authentication, a JWT token is returned, along with the user's role."
       operationId: "routes.login"
       tags:
         - Authentication
@@ -36,19 +36,23 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: "Login successful"
                   token:
                     type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                   role:
                     type: string
-                    description: "User's role (Administrator or Standard)"
+                    example: "Administrator"
+        "400":
+          description: "Bad Request - Missing username or password"
         "401":
-          description: "Unauthorized"
+          description: "Unauthorized - Invalid credentials"
         "500":
           description: "Authentication service unavailable"
-
   /trails/admin:
     get:
       summary: "Retrieve all trails (Administrator view)"
+      description: "This endpoint allows administrators to retrieve a list of all trails."
       operationId: "routes.admin_trails"
       tags:
         - Trails
@@ -60,20 +64,17 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  trails:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Trail"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trail"
         "401":
-          description: "Unauthorized"
+          description: "Unauthorized - Missing or invalid token"
         "403":
-          description: "Forbidden"
-
+          description: "Forbidden - User does not have administrative access"
   /trails/standard:
     get:
       summary: "Retrieve all trails (Standard view)"
+      description: "This endpoint allows standard users to retrieve a list of trails."
       operationId: "routes.standard_trails"
       tags:
         - Trails
@@ -85,25 +86,27 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  trails:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Trail"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trail"
         "401":
-          description: "Unauthorized"
+          description: "Unauthorized - Missing or invalid token"
         "403":
-          description: "Forbidden"
-
+          description: "Forbidden - User does not have access"
   /trails/admin/{trail_id}:
     get:
       summary: "Retrieve a single trail by ID (Administrator view)"
+      description: "Allows administrators to retrieve details of a specific trail using its ID."
       operationId: "routes.trail_by_id_admin"
       tags:
         - Trails
       parameters:
-        - $ref: "#/components/parameters/trail_id"
+        - name: "trail_id"
+          in: path
+          description: "ID of the trail"
+          required: true
+          schema:
+            type: integer
       security:
         - BearerAuth: []
       responses:
@@ -112,25 +115,132 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  trail:
-                    $ref: "#/components/schemas/Trail"
+                $ref: "#/components/schemas/Trail"
         "401":
-          description: "Unauthorized"
+          description: "Unauthorized - Missing or invalid token"
         "403":
-          description: "Forbidden"
+          description: "Forbidden - User does not have administrative access"
         "404":
           description: "Trail not found"
-
+  /trails/standard/{trail_id}:
+    get:
+      summary: "Retrieve a single trail by ID (Standard view)"
+      description: "Allows standard users to retrieve details of a specific trail using its ID."
+      operationId: "routes.trail_by_id_standard"
+      tags:
+        - Trails
+      parameters:
+        - name: "trail_id"
+          in: path
+          description: "ID of the trail"
+          required: true
+          schema:
+            type: integer
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "Trail details for standard users"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trail"
+        "401":
+          description: "Unauthorized - Missing or invalid token"
+        "403":
+          description: "Forbidden - User does not have access"
+        "404":
+          description: "Trail not found"
+  /trails/add:
+    post:
+      summary: "Add a new trail"
+      description: "Allows administrators to add a new trail to the system."
+      operationId: "routes.add_trail"
+      tags:
+        - Trails
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrailCreate"
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "Trail added successfully"
+        "400":
+          description: "Bad Request - Invalid trail data"
+        "401":
+          description: "Unauthorized - Missing or invalid token"
+  /trails/update/{trail_id}:
+    put:
+      summary: "Update a trail"
+      description: "Allows administrators to update the details of an existing trail."
+      operationId: "routes.edit_trail"
+      tags:
+        - Trails
+      parameters:
+        - name: "trail_id"
+          in: path
+          description: "ID of the trail"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrailCreate"
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "Trail updated successfully"
+        "400":
+          description: "Bad Request - Invalid trail data"
+        "401":
+          description: "Unauthorized - Missing or invalid token"
+        "404":
+          description: "Trail not found"
+  /trails/delete/{trail_id}:
+    delete:
+      summary: "Delete a trail"
+      description: "Allows administrators to delete a trail using its ID."
+      operationId: "routes.remove_trail"
+      tags:
+        - Trails
+      parameters:
+        - name: "trail_id"
+          in: path
+          description: "ID of the trail"
+          required: true
+          schema:
+            type: integer
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "Trail deleted successfully"
+        "401":
+          description: "Unauthorized - Missing or invalid token"
+        "404":
+          description: "Trail not found"
   /trails/{trail_id}/features:
     post:
       summary: "Add features to a trail"
+      description: "Allows administrators to add one or more features to a trail."
       operationId: "routes.add_trail_features"
       tags:
         - Features
       parameters:
-        - $ref: "#/components/parameters/trail_id"
+        - name: "trail_id"
+          in: path
+          description: "ID of the trail"
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -139,58 +249,60 @@ paths:
               type: array
               items:
                 type: string
-                description: "Feature name to add to the trail"
       security:
         - BearerAuth: []
       responses:
         "200":
           description: "Features added successfully"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
         "400":
-          description: "Failed to add features"
+          description: "Bad Request - Invalid feature data"
         "401":
-          description: "Unauthorized"
-
+          description: "Unauthorized - Missing or invalid token"
+        "404":
+          description: "Trail not found"
   /trails/{trail_id}/features/{feature_id}:
     delete:
       summary: "Remove a feature from a trail"
+      description: "Allows administrators to remove a specific feature from a trail."
       operationId: "routes.remove_trail_feature"
       tags:
         - Features
       parameters:
-        - $ref: "#/components/parameters/trail_id"
-        - $ref: "#/components/parameters/feature_id"
+        - name: "trail_id"
+          in: path
+          description: "ID of the trail"
+          required: true
+          schema:
+            type: integer
+        - name: "feature_id"
+          in: path
+          description: "ID of the feature"
+          required: true
+          schema:
+            type: integer
       security:
         - BearerAuth: []
       responses:
         "200":
           description: "Feature removed successfully"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        "400":
-          description: "Failed to remove feature"
         "401":
-          description: "Unauthorized"
-
+          description: "Unauthorized - Missing or invalid token"
+        "404":
+          description: "Trail or feature not found"
   /trails/{trail_id}/location-points:
     put:
       summary: "Update location points for a trail"
+      description: "Allows administrators to update the location points of a trail."
       operationId: "routes.edit_location_points"
       tags:
         - Location Points
       parameters:
-        - $ref: "#/components/parameters/trail_id"
+        - name: "trail_id"
+          in: path
+          description: "ID of the trail"
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -204,76 +316,77 @@ paths:
       responses:
         "200":
           description: "Location points updated successfully"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
         "400":
-          description: "Failed to update location points"
+          description: "Bad Request - Invalid location point data"
         "401":
-          description: "Unauthorized"
-
+          description: "Unauthorized - Missing or invalid token"
+        "404":
+          description: "Trail not found"
   /trails/{trail_id}/location-points/{location_point_id}:
     delete:
       summary: "Remove a location point from a trail"
+      description: "Allows administrators to remove a specific location point from a trail."
       operationId: "routes.delete_location_point"
       tags:
         - Location Points
       parameters:
-        - $ref: "#/components/parameters/trail_id"
-        - $ref: "#/components/parameters/location_point_id"
+        - name: "trail_id"
+          in: path
+          description: "ID of the trail"
+          required: true
+          schema:
+            type: integer
+        - name: "location_point_id"
+          in: path
+          description: "ID of the location point"
+          required: true
+          schema:
+            type: integer
       security:
         - BearerAuth: []
       responses:
         "200":
           description: "Location point removed successfully"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        "400":
-          description: "Failed to remove location point"
         "401":
-          description: "Unauthorized"
-
+          description: "Unauthorized - Missing or invalid token"
+        "404":
+          description: "Trail or location point not found"
 components:
   schemas:
+    Account:
+      type: object
+      properties:
+        AccountID:
+          type: integer
+        Email_address:
+          type: string
+          description: "Email address of the account"
+        Role:
+          type: string
+          description: "Role of the account user (Administrator or Standard)"
     Trail:
       type: object
       properties:
         TrailID:
           type: integer
-          description: "ID of the trail"
         Trail_name:
           type: string
-          description: "Name of the trail"
         Trail_Summary:
           type: string
-          description: "Summary of the trail"
         Trail_Description:
           type: string
-          description: "Detailed description of the trail"
         Difficulty:
           type: string
-          description: "Difficulty level of the trail"
         Location:
           type: string
-          description: "Location of the trail"
         Length:
           type: number
-          description: "Length of the trail in kilometers"
         Elevation_gain:
           type: integer
-          description: "Elevation gain of the trail in meters"
         Route_type:
           type: string
-          description: "Type of route (e.g., Loop, Out & Back)"
+        OwnerID:
+          type: integer
     TrailCreate:
       type: object
       required:
@@ -300,47 +413,38 @@ components:
         Route_type:
           type: string
     Feature:
-      type: string
-      description: "Feature name"
+      type: object
+      properties:
+        FeatureID:
+          type: integer
+        Feature_name:
+          type: string
+          description: "Name of the feature"
     LocationPoint:
       type: object
       properties:
         LocationPointID:
           type: integer
-          description: "ID of the location point"
         Latitude:
           type: number
-          description: "Latitude of the location point"
         Longitude:
           type: number
-          description: "Longitude of the location point"
         Description:
           type: string
-          description: "Description of the location point"
-
-  parameters:
-    trail_id:
-      name: "trail_id"
-      in: path
-      description: "ID of the trail"
-      required: true
-      schema:
-        type: integer
-    feature_id:
-      name: "feature_id"
-      in: path
-      description: "ID of the feature"
-      required: true
-      schema:
-        type: integer
-    location_point_id:
-      name: "location_point_id"
-      in: path
-      description: "ID of the location point"
-      required: true
-      schema:
-        type: integer
-
+    TrailFeature:
+      type: object
+      properties:
+        TrailID:
+          type: integer
+        FeatureID:
+          type: integer
+    TrailLocationPoint:
+      type: object
+      properties:
+        TrailID:
+          type: integer
+        LocationPointID:
+          type: integer
   securitySchemes:
     BearerAuth:
       type: http
