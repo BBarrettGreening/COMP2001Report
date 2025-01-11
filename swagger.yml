@@ -1,210 +1,350 @@
 openapi: 3.0.0
 info:
-  title: "Flask REST API"
-  description: "API for managing people and their notes"
-  version: "1.0.0"
+  title: "Trails Management API"
+  description: "API for managing trails, features, location points, and user authentication."
+  version: "1.1.2"
 servers:
-  - url: "/api"
+  - url: "http://127.0.0.1:8000/api"
+
 paths:
-  /people:
-    get:
-      operationId: "people.read_all"
-      tags:
-        - People
-      summary: "Retrieve all people"
-      responses:
-        "200":
-          description: "List of people"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Person"
+  /login:
     post:
-      operationId: "people.create"
+      summary: "Authenticate user and generate JWT token"
+      operationId: "routes.login"
       tags:
-        - People
-      summary: "Create a person"
+        - Authentication
       requestBody:
-        description: "Person to create"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Person"
-      responses:
-        "201":
-          description: "Person created"
-  /people/{lname}:
-    get:
-      operationId: "people.read_one"
-      tags:
-        - People
-      summary: "Retrieve one person"
-      parameters:
-        - $ref: "#/components/parameters/lname"
-      responses:
-        "200":
-          description: "Person found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Person"
-    put:
-      operationId: "people.update"
-      tags:
-        - People
-      summary: "Update a person"
-      parameters:
-        - $ref: "#/components/parameters/lname"
-      requestBody:
-        description: "Person data to update"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Person"
-      responses:
-        "200":
-          description: "Person updated"
-    delete:
-      operationId: "people.delete"
-      tags:
-        - People
-      summary: "Delete a person"
-      parameters:
-        - $ref: "#/components/parameters/lname"
-      responses:
-        "204":
-          description: "Person deleted"
-  /notes:
-    post:
-      operationId: "notes.create"
-      tags:
-        - Notes
-      summary: "Create a note associated with a person"
-      requestBody:
-        description: "Note to create"
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                person_id:
-                  type: integer
-                  description: "ID of the person associated with the note"
-                content:
+                username:
                   type: string
-                  description: "Content of the note"
-      responses:
-        "201":
-          description: "Successfully created a note"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Note"
-  /notes/{note_id}:
-    get:
-      operationId: "notes.read_one"
-      tags:
-        - Notes
-      summary: "Retrieve one note"
-      parameters:
-        - $ref: "#/components/parameters/note_id"
+                  description: "User's email address"
+                password:
+                  type: string
+                  description: "User's password"
       responses:
         "200":
-          description: "Note found"
+          description: "Login successful"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Note"
-    put:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  role:
+                    type: string
+                    description: "User's role (Administrator or Standard)"
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "Authentication service unavailable"
+
+  /trails/admin:
+    get:
+      summary: "Retrieve all trails (Administrator view)"
+      operationId: "routes.admin_trails"
       tags:
-        - Notes
-      operationId: "notes.update"
-      summary: "Update a note"
+        - Trails
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "List of trails for administrators"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trails:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Trail"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+
+  /trails/standard:
+    get:
+      summary: "Retrieve all trails (Standard view)"
+      operationId: "routes.standard_trails"
+      tags:
+        - Trails
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "List of trails for standard users"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trails:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Trail"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+
+  /trails/admin/{trail_id}:
+    get:
+      summary: "Retrieve a single trail by ID (Administrator view)"
+      operationId: "routes.trail_by_id_admin"
+      tags:
+        - Trails
       parameters:
-        - $ref: "#/components/parameters/note_id"
+        - $ref: "#/components/parameters/trail_id"
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "Trail details for administrators"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trail:
+                    $ref: "#/components/schemas/Trail"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Trail not found"
+
+  /trails/{trail_id}/features:
+    post:
+      summary: "Add features to a trail"
+      operationId: "routes.add_trail_features"
+      tags:
+        - Features
+      parameters:
+        - $ref: "#/components/parameters/trail_id"
       requestBody:
-        description: "Updated content for the note"
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                content:
-                  type: string
-                  description: "Updated content of the note"
+              type: array
+              items:
+                type: string
+                description: "Feature name to add to the trail"
+      security:
+        - BearerAuth: []
       responses:
         "200":
-          description: "Successfully updated note"
+          description: "Features added successfully"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Note"
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: "Failed to add features"
+        "401":
+          description: "Unauthorized"
+
+  /trails/{trail_id}/features/{feature_id}:
     delete:
+      summary: "Remove a feature from a trail"
+      operationId: "routes.remove_trail_feature"
       tags:
-        - Notes
-      operationId: "notes.delete"
-      summary: "Delete a note"
+        - Features
       parameters:
-        - $ref: "#/components/parameters/note_id"
+        - $ref: "#/components/parameters/trail_id"
+        - $ref: "#/components/parameters/feature_id"
+      security:
+        - BearerAuth: []
       responses:
-        "204":
-          description: "Successfully deleted note"
+        "200":
+          description: "Feature removed successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: "Failed to remove feature"
+        "401":
+          description: "Unauthorized"
+
+  /trails/{trail_id}/location-points:
+    put:
+      summary: "Update location points for a trail"
+      operationId: "routes.edit_location_points"
+      tags:
+        - Location Points
+      parameters:
+        - $ref: "#/components/parameters/trail_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/LocationPoint"
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "Location points updated successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: "Failed to update location points"
+        "401":
+          description: "Unauthorized"
+
+  /trails/{trail_id}/location-points/{location_point_id}:
+    delete:
+      summary: "Remove a location point from a trail"
+      operationId: "routes.delete_location_point"
+      tags:
+        - Location Points
+      parameters:
+        - $ref: "#/components/parameters/trail_id"
+        - $ref: "#/components/parameters/location_point_id"
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: "Location point removed successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: "Failed to remove location point"
+        "401":
+          description: "Unauthorized"
+
 components:
   schemas:
-    Person:
+    Trail:
+      type: object
+      properties:
+        TrailID:
+          type: integer
+          description: "ID of the trail"
+        Trail_name:
+          type: string
+          description: "Name of the trail"
+        Trail_Summary:
+          type: string
+          description: "Summary of the trail"
+        Trail_Description:
+          type: string
+          description: "Detailed description of the trail"
+        Difficulty:
+          type: string
+          description: "Difficulty level of the trail"
+        Location:
+          type: string
+          description: "Location of the trail"
+        Length:
+          type: number
+          description: "Length of the trail in kilometers"
+        Elevation_gain:
+          type: integer
+          description: "Elevation gain of the trail in meters"
+        Route_type:
+          type: string
+          description: "Type of route (e.g., Loop, Out & Back)"
+    TrailCreate:
       type: object
       required:
-        - lname
-        - fname
+        - Trail_name
+        - Location
+        - Length
+        - Difficulty
+        - Route_type
       properties:
-        fname:
+        Trail_name:
           type: string
-          description: "First name of the person"
-        lname:
+        Trail_Summary:
           type: string
-          description: "Last name of the person"
-        notes:
-          type: array
-          description: "List of notes associated with the person"
-          items:
-            $ref: "#/components/schemas/Note"
-    Note:
+        Trail_Description:
+          type: string
+        Difficulty:
+          type: string
+        Location:
+          type: string
+        Length:
+          type: number
+        Elevation_gain:
+          type: integer
+        Route_type:
+          type: string
+    Feature:
+      type: string
+      description: "Feature name"
+    LocationPoint:
       type: object
-      required:
-        - content
-        - timestamp
       properties:
-        id:
+        LocationPointID:
           type: integer
-          description: "ID of the note"
-        person_id:
-          type: integer
-          description: "ID of the person who created the note"
-        content:
+          description: "ID of the location point"
+        Latitude:
+          type: number
+          description: "Latitude of the location point"
+        Longitude:
+          type: number
+          description: "Longitude of the location point"
+        Description:
           type: string
-          description: "Content of the note"
-        timestamp:
-          type: string
-          format: date-time
-          description: "Timestamp of when the note was created"
+          description: "Description of the location point"
+
   parameters:
-    lname:
-      name: "lname"
+    trail_id:
+      name: "trail_id"
       in: path
-      description: "Last name of the person"
-      required: true
-      schema:
-        type: string
-    note_id:
-      name: "note_id"
-      in: path
-      description: "ID of the note"
+      description: "ID of the trail"
       required: true
       schema:
         type: integer
+    feature_id:
+      name: "feature_id"
+      in: path
+      description: "ID of the feature"
+      required: true
+      schema:
+        type: integer
+    location_point_id:
+      name: "location_point_id"
+      in: path
+      description: "ID of the location point"
+      required: true
+      schema:
+        type: integer
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: config.bearer_info_func
+

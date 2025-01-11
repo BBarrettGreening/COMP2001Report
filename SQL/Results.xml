@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<data>
+  <row>
+    <TrailID>1</TrailID>
+    <Trail_name>Plymouth Circular</Trail_name>
+    <Trail_Summary>A circular walk through oak woodlands</Trail_Summary>
+    <Trail_Description>This is a gentle circular walk through ancient oak woodlands, beside the beautiful River Plym...</Trail_Description>
+    <Difficulty>Easy</Difficulty>
+    <Location>Plymouth, Devon, England</Location>
+    <Length>5.00</Length>
+    <Elevation_gain>147</Elevation_gain>
+    <Route_type>Loop</Route_type>
+    <Owner_Email>grace@plymouth.ac.uk</Owner_Email>
+    <Features>Dog-friendly, Kid-friendly, Partially paved, Caves, Forests, Birding</Features>
+    <LocationPoints>(50.369000, -4.136200) Plymouth Hoe starting and ending point; (50.370500, -4.142700) Royal Citadel viewpoint; (50.374000, -4.148000) Barbican historic area; (50.376500, -4.142000) Sutton Harbour marina; (50.371500, -4.138500) Plymouth Mayflower Steps</LocationPoints>
+  </row>
+  <row>
+    <TrailID>2</TrailID>
+    <Trail_name>Exmouth and Dawlish Warren</Trail_name>
+    <Trail_Summary>A route between Exmouth and Dawlish</Trail_Summary>
+    <Trail_Description>This stretch of the Exe Estuary Trail is a cycling and walking route between Exmouth and Dawlish...</Trail_Description>
+    <Difficulty>Moderate</Difficulty>
+    <Location>Exmouth, Devon, England</Location>
+    <Length>26.20</Length>
+    <Elevation_gain>181</Elevation_gain>
+    <Route_type>Point-to-point</Route_type>
+    <Owner_Email>tim@plymouth.ac.uk</Owner_Email>
+    <Features>Partially paved, Beaches, Rivers, Hiking, Mountain biking, Walking</Features>
+    <LocationPoints>(50.617400, -3.406600) Exmouth Marina starting point; (50.621000, -3.437500) Lympstone Village; (50.626500, -3.463000) Topsham Town; (50.629000, -3.485500) Powderham Castle viewpoint; (50.598000, -3.446000) Dawlish Warren Nature Reserve</LocationPoints>
+  </row>
+</data>
