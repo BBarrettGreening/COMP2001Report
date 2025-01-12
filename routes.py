@@ -12,7 +12,6 @@ routes_blueprint = Blueprint("routes", __name__)
 
 AUTH_URL = 'https://web.socem.plymouth.ac.uk/COMP2001/auth/api/users'
 
-
 # Middleware to check authentication
 def login_required(role=None):
     def decorator(func):
@@ -36,11 +35,9 @@ def login_required(role=None):
         return wrapper
     return decorator
 
-
 @routes_blueprint.route("/", methods=["GET"])
 def home():
     return render_template("home.html")
-
 
 @routes_blueprint.route("/login", methods=["POST"])
 def login():
@@ -75,30 +72,25 @@ def login():
     else:
         return jsonify({"error": "Authentication service unavailable"}), 500
 
-
 @routes_blueprint.route("/trails/admin", methods=["GET"])
 @login_required(role="Administrator")
 def admin_trails():
     return read_all_admin()
-
 
 @routes_blueprint.route("/trails/standard", methods=["GET"])
 @login_required(role="Standard")
 def standard_trails():
     return read_all_standard()
 
-
 @routes_blueprint.route("/trails/admin/<int:trail_id>", methods=["GET"])
 @login_required(role="Administrator")
 def trail_by_id_admin(trail_id):
     return read_one_admin(trail_id)
 
-
 @routes_blueprint.route("/trails/standard/<int:trail_id>", methods=["GET"])
 @login_required(role="Standard")
 def trail_by_id_standard(trail_id):
     return read_one_standard(trail_id)
-
 
 @routes_blueprint.route("/trails/add", methods=["POST"])
 @login_required(role="Administrator")
@@ -106,13 +98,11 @@ def add_trail():
     trail_data = request.json
     return create(trail_data)
 
-
 @routes_blueprint.route("/trails/update/<int:trail_id>", methods=["PUT"])
 @login_required(role="Administrator")
 def edit_trail(trail_id):
     trail_data = request.json
     return update(trail_id, trail_data)
-
 
 @routes_blueprint.route("/trails/delete/<int:trail_id>", methods=["DELETE"])
 @login_required(role="Administrator")
@@ -130,7 +120,6 @@ def add_trail_features(trail_id):
     except Exception as e:
         return jsonify({"error": f"Failed to add features: {str(e)}"}), 400
 
-
 @routes_blueprint.route("/trails/<int:trail_id>/features/<int:feature_id>", methods=["DELETE"])
 @login_required(role="Administrator")
 def remove_trail_feature(trail_id, feature_id):
@@ -140,7 +129,6 @@ def remove_trail_feature(trail_id, feature_id):
         return jsonify({"message": "Feature removed successfully", "feature": serialized_feature}), 200
     except Exception as e:
         return jsonify({"error": f"Failed to remove feature: {str(e)}"}), 400
-
 
 # Location points routes
 @routes_blueprint.route("/trails/<int:trail_id>/location-points", methods=["PUT"])
@@ -153,7 +141,6 @@ def edit_location_points(trail_id):
         return jsonify({"location_points": serialized_points}), 200
     except Exception as e:
         return jsonify({"error": f"Failed to update location points: {str(e)}"}), 400
-
 
 @routes_blueprint.route("/trails/<int:trail_id>/location-points/<int:location_point_id>", methods=["DELETE"])
 @login_required(role="Administrator")
