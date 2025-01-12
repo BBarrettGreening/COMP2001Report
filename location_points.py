@@ -10,8 +10,7 @@ def update_location_points(trail_id, location_points):
                     "EXEC CW2.InsertLocationPoint @Latitude = :Latitude, @Longitude = :Longitude, "
                     "@Description = :Description, @TrailID = :TrailID, @Order_no = :Order_no"
                 ),
-                {"Latitude": point["Latitude"], "Longitude": point["Longitude"], "Description": point["Description"],
-                 "TrailID": trail_id, "Order_no": i}
+                {"Latitude": point["Latitude"], "Longitude": point["Longitude"], "Description": point["Description"], "TrailID": trail_id, "Order_no": i}
             )
         db.session.commit()
         return {"message": "Location points updated successfully"}

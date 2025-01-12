@@ -82,7 +82,7 @@ def test_add_trail():
 # Test updating a trail (admin only)
 def test_update_trail():
     headers = {"Authorization": f"Bearer {admin_token}"}
-    trail_id = 3  # Replace with an actual trail ID
+    trail_id = 3
     updated_trail = {
         "Trail_name": "Updated Trail Name",
         "Trail_Summary": "Updated Summary",
@@ -100,14 +100,14 @@ def test_update_trail():
 # Test deleting a trail (admin only)
 def test_delete_trail():
     headers = {"Authorization": f"Bearer {admin_token}"}
-    trail_id = 3  # Replace with an actual trail ID
+    trail_id = 3
     response = requests.delete(f"{BASE_URL}/trails/delete/{trail_id}", headers=headers)
     assert response.status_code in [200, 404], f"Failed to delete trail: {response.text}"
 
 # Test adding features to a trail (admin only)
 def test_add_features():
     headers = {"Authorization": f"Bearer {admin_token}"}
-    trail_id = 2  # Replace with an actual trail ID
+    trail_id = 2
     features = ["Waterfall", "Viewpoint"]
     response = requests.post(f"{BASE_URL}/trails/{trail_id}/features", json=features, headers=headers)
     assert response.status_code == 200, f"Failed to add features: {response.text}"
@@ -115,15 +115,15 @@ def test_add_features():
 # Test removing a feature from a trail (admin only)
 def test_remove_feature():
     headers = {"Authorization": f"Bearer {admin_token}"}
-    trail_id = 1  # Replace with an actual trail ID
-    feature_id = 1  # Replace with an actual feature ID
+    trail_id = 1
+    feature_id = 1
     response = requests.delete(f"{BASE_URL}/trails/{trail_id}/features/{feature_id}", headers=headers)
     assert response.status_code in [200, 404], f"Failed to remove feature: {response.text}"
 
 # Test updating location points (admin only)
 def test_update_location_points():
     headers = {"Authorization": f"Bearer {admin_token}"}
-    trail_id = 1  # Replace with an actual trail ID
+    trail_id = 1
     location_points = [
         {"Latitude": 51.5074, "Longitude": -0.1278, "Description": "Point 1"},
         {"Latitude": 51.5075, "Longitude": -0.1279, "Description": "Point 2"}
@@ -134,8 +134,8 @@ def test_update_location_points():
 # Test removing a location point (admin only)
 def test_remove_location_point():
     headers = {"Authorization": f"Bearer {admin_token}"}
-    trail_id = 1  # Replace with an actual trail ID
-    location_point_id = 1  # Replace with an actual location point ID
+    trail_id = 1
+    location_point_id = 1
     response = requests.delete(f"{BASE_URL}/trails/{trail_id}/location-points/{location_point_id}", headers=headers)
     assert response.status_code in [200, 404], f"Failed to remove location point: {response.text}"
 
